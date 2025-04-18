@@ -1,9 +1,11 @@
 import { useState, useEffect, useContext, useOptimistic } from "react";
 import "./budgettracker.css";
-import TransactionForm from "./components/TransactionForm";
-import TransactionList from "./components/TransactionList";
+import TransactionForm from "./components/TransactionForm/TransactionForm";
+import TransactionList from "./components/TransactionList/TransactionList";
 import { BudgetContext } from "./context/BudgetContext";
 import SettingsDialog from "./components/SettingsDialog/SettingsDialog";
+import Charts from "./components/Charts";
+
 function App() {
   const { saldo, transactions, state } = useContext(BudgetContext);
   const [showSettings, setShowSettings] = useState(false);
@@ -11,31 +13,53 @@ function App() {
     transactions,
     (prev, newItem) => [...prev, newItem]
   );
+
   return (
-    <div
-      className="container"
-      style={
-        state.theme == "dark"
-          ? { backgroundColor: "#333" }
-          : { backgroundColor: "#fff" }
-      }
-    >
-      <SettingsDialog
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
-      <h1 className="">Budget Tracker</h1>
-      <div className="balance-box">
-        <h3>Balance</h3>
-        <p className="balance" id="balance">
-          {saldo} {state.currency}
-        </p>
+    <div className="wrapper">
+      <div
+        className="container"
+        style={
+          state.theme === "dark"
+            ? { backgroundColor: "#333" }
+            : { backgroundColor: "#fff" }
+        }
+      >
+        <SettingsDialog
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+        />
+        <h1 className="">Budget Tracker</h1>
+        <div className="balance-box">
+          <h3>Balance</h3>
+          <p className="balance" id="balance">
+            {saldo} {state.currency}
+          </p>
+        </div>
+        <TransactionForm
+          setOptimisticTransactions={setOptimisticTransactions}
+        />
+        <TransactionList transactions={optimisticTransactions} />
+        <button onClick={() => setShowSettings(true)}>Settings</button>
       </div>
-      <TransactionForm setOptimisticTransactions={setOptimisticTransactions} />
-      <TransactionList transactions={optimisticTransactions} />
-      <button onClick={() => setShowSettings(true)}>Settings</button>{" "}
-      <div>
-        <canvas id="myChart"></canvas>
+      <div className="container">
+        <h2>Pie Chart - Expenses across different categories</h2>
+        <Charts
+          type="pie"
+          transactions={transactions}
+          options={{ responsive: true }}
+        />
+        <h2>Bar Chart - Monthly Income vs Expenses</h2>
+        <Charts
+          type="bar"
+          transactions={transactions}
+          options={{ responsive: true }}
+        />
+        <h2>Line Chart - Savings Over Time</h2>
+        <Charts
+          type="line"
+          transactions={transactions}
+          options={{ responsive: true }}
+        />
       </div>
     </div>
   );

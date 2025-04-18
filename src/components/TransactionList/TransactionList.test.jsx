@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { BudgetContext } from "../context/BudgetContext";
+import { BudgetContext } from "../../context/BudgetContext";
 import TransactionList from "./TransactionList";
 
 describe("TransactionList Component", () => {

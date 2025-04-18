@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import TransactionForm from './TransactionForm';
-import { BudgetContext } from '../context/BudgetContext';
+import { BudgetContext } from '../../context/BudgetContext';
 
 // Mock BudgetContext
 const mockAddTransaction = vi.fn();

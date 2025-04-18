@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { BudgetContext } from "../context/BudgetContext";
-import Confirm from "./Confirm";
+import Confirm from "./Confirm/Confirm";
 
 export default function Transaction({ transaction }) {
   const { updateTransaction, deleteTransaction } = useContext(BudgetContext);

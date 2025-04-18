@@ -1,6 +1,6 @@
 import { useContext, useActionState, useState } from "react";
-import { BudgetContext } from "../context/BudgetContext";
-import SubmitButton from "./SubmitButton";
+import { BudgetContext } from "../../context/BudgetContext";
+import SubmitButton from "../SubmitButton";
 
 export default function TransactionForm({ setOptimisticTransactions }) {
   const { addTransaction } = useContext(BudgetContext);
@@ -37,7 +37,7 @@ export default function TransactionForm({ setOptimisticTransactions }) {
     const transaction = {
       id: Math.random(),
       description,
-      amount,
+      amount: Number(amount),
       category,
       isOptimistic: true,
     };
