@@ -9,6 +9,8 @@ export const BudgetContext = createContext(null);
 
 const initialState = {
   transactions: [],
+  theme: "light",
+  currency: "€",
 };
 
 function BudgetReducer(state, action) {
@@ -44,6 +46,10 @@ function BudgetReducer(state, action) {
         (transaction) => transaction.id !== action.payload
       ),
     };
+  } else if (action.type == "set_theme") {
+    return { ...state, theme: action.payload };
+  } else if (action.type == "set_currency") {
+    return { ...state, currency: action.payload };
   }
 }
 
@@ -79,6 +85,8 @@ export default function BudgetProvider({ children }) {
         addTransaction,
         updateTransaction,
         deleteTransaction,
+        state,
+        dispatch,
       }}
     >
       {children}
