@@ -8,7 +8,7 @@ export default function TransactionList({ transactions }) {
       <h3>Transactions</h3>
       {transactions && (
         <ul className="transaction-list">
-          {transactions.map((transaction) => (
+          {transactions?.map((transaction) => (
             <Transaction key={transaction.id} transaction={transaction} />
           ))}
         </ul>
