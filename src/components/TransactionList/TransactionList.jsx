@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import Filter from "../Filter";
 import Transaction from "../Transaction";
+import { CSVLink } from "react-csv";
 import "./TransactionList.css";
+
 export default function TransactionList({ transactions }) {
   const [filteredTransactions, setFilteredTransactions] =
     useState(transactions);
@@ -50,6 +52,7 @@ export default function TransactionList({ transactions }) {
   const handleReset = () => {
     setFilteredTransactions(transactions);
   };
+  const headers = transactions.map((transaction) => transaction.type);
 
   return (
     <div>
@@ -60,6 +63,14 @@ export default function TransactionList({ transactions }) {
           className="fa fa-filter"
           style={{ fontSize: "48px" }}
         ></i>
+      </div>
+      <div className="csv-download">
+        <CSVLink
+          data={transactions}
+          filename={`transaction_${new Date(Date.now()).toLocaleDateString()}`}
+        >
+          Download CSV
+        </CSVLink>
       </div>
       <Filter
         isOpen={isOpen}

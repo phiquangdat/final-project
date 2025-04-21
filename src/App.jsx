@@ -1,5 +1,6 @@
-import { useState, useEffect, useContext, useOptimistic } from "react";
+import { useState, useContext, useOptimistic } from "react";
 import "./budgettracker.css";
+
 import TransactionForm from "./components/TransactionForm/TransactionForm";
 import TransactionList from "./components/TransactionList/TransactionList";
 import { BudgetContext } from "./context/BudgetContext";
