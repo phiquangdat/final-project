@@ -2,9 +2,17 @@ import React, { useState, useContext } from "react";
 import { createPortal } from "react-dom";
 import { BudgetContext } from "../context/BudgetContext";
 
-export default function Filter({ isOpen, onFilter, onReset }) {
+export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
   const { transactions } = useContext(BudgetContext);
-
+  const styles = {
+    closeButton: {
+      position: "absolute",
+      top: "10px",
+      right: "10px",
+      fontSize: "18px",
+      cursor: "pointer",
+    },
+  };
   const [type, setType] = useState("");
   const [category, setCategory] = useState("");
   const [dateRange, setDateRange] = useState("");
@@ -30,6 +38,9 @@ export default function Filter({ isOpen, onFilter, onReset }) {
   return createPortal(
     <dialog open>
       <form onSubmit={handleSubmit} data-testid="filter-form">
+        <button style={styles.closeButton} onClick={() => setIsOpen(false)}>
+          &times;
+        </button>
         <div>
           <label htmlFor="type">Type</label>
           <select

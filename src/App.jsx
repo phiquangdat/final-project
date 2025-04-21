@@ -12,7 +12,7 @@ function App() {
   const [optimisticTransactions, setOptimisticTransactions] = useOptimistic(
     transactions,
     (prev, newItem) => [...prev, newItem]
-  );
+  ); 
 
   return (
     <div className="wrapper">
@@ -28,7 +28,20 @@ function App() {
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
         />
-        <h1 className="">Budget Tracker</h1>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <h1 className="">Budget Tracker</h1>
+          <i
+            class="fa fa-cog"
+            aria-hidden="true"
+            onClick={() => setShowSettings(true)}
+          ></i>
+        </div>
         <div className="balance-box">
           <h3>Balance</h3>
           <p className="balance" id="balance">
@@ -39,7 +52,6 @@ function App() {
           setOptimisticTransactions={setOptimisticTransactions}
         />
         <TransactionList transactions={optimisticTransactions} />
-        <button onClick={() => setShowSettings(true)}>Settings</button>
       </div>
       <div className="container">
         <h2>Pie Chart - Expenses across different categories</h2>

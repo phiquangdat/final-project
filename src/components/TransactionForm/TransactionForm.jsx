@@ -44,7 +44,7 @@ export default function TransactionForm({ setOptimisticTransactions }) {
     setOptimisticTransactions((prev) => [...prev, transaction]);
     await new Promise((resolve) => setTimeout(resolve, 3000));
     addTransaction({ ...transaction, isOptimistic: false });
-    setCategory(""); // Reset category after successful submission
+    setCategory("");
     return { errors: null };
   }
 

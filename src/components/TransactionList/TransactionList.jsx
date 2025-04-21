@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Filter from "../Filter";
 import Transaction from "../Transaction";
-
+import "./TransactionList.css";
 export default function TransactionList({ transactions }) {
   const [filteredTransactions, setFilteredTransactions] =
     useState(transactions);
@@ -53,14 +53,17 @@ export default function TransactionList({ transactions }) {
 
   return (
     <div>
-      <h3>Transactions</h3>
-      <i
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="fa fa-filter"
-        style={{ fontSize: "48px" }}
-      ></i>
+      <div className="header">
+        <h3>Transactions</h3>
+        <i
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="fa fa-filter"
+          style={{ fontSize: "48px" }}
+        ></i>
+      </div>
       <Filter
         isOpen={isOpen}
+        setIsOpen={setIsOpen}
         onFilter={handleFilter}
         onReset={handleReset}
         transactions={transactions}
