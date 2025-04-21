@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from "react";
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>;
 
-const Charts = ({ type, transactions, options }) => {
-  // Data preparation
+const Charts = ({ type, transactions, options, isDarkTheme }) => {
   const categoryData = {};
   const monthlyData = {};
 
-  // Populate data dynamically based on transactions
+  // Populate data dynamically based on transacations
   transactions.forEach((transaction) => {
     // Populate category data (Pie Chart)
     if (!categoryData[transaction.category]) {
@@ -83,14 +82,44 @@ const Charts = ({ type, transactions, options }) => {
   useEffect(() => {
     const ctx = canvasRef.current.getContext("2d");
     const chart = new Chart(ctx, {
-      type, // Chart type passed as a prop
-      data, // Data dynamically generated based on the type
-      options, // Chart options passed as a prop
+      type,
+      data,
+      options: {
+        ...options,
+        plugins: {
+          legend: {
+            labels: {
+              color: isDarkTheme ? "#fff" : "#000",
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: isDarkTheme ? "#fff" : "#000",
+            },
+            grid: {
+              color: isDarkTheme
+                ? "rgba(255, 255, 255, 0.2)"
+                : "rgba(0, 0, 0, 0.1)",
+            },
+          },
+          y: {
+            ticks: {
+              color: isDarkTheme ? "#fff" : "#000",
+            },
+            grid: {
+              color: isDarkTheme
+                ? "rgba(255, 255, 255, 0.2)"
+                : "rgba(0, 0, 0, 0.1)",
+            },
+          },
+        },
+      },
     });
 
-    // Cleanup on unmount
     return () => chart.destroy();
-  }, [type, data, options]);
+  }, [type, data, options, isDarkTheme]);
 
   return <canvas ref={canvasRef}></canvas>;
 };
