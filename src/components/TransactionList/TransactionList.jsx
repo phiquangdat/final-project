@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Filter from "../Filter";
 import Transaction from "../Transaction";
 
 export default function TransactionList({ transactions }) {
   const [filteredTransactions, setFilteredTransactions] =
     useState(transactions);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Handle filter application
+  useEffect(() => {
+    setFilteredTransactions(transactions);
+  }, [transactions]);
+
   const handleFilter = ({
     type,
     category,
@@ -15,13 +19,10 @@ export default function TransactionList({ transactions }) {
     maxAmount,
   }) => {
     const filtered = transactions.filter((transaction) => {
-      // Type filter
       if (type && transaction.type !== type) return false;
 
-      // Category filter
       if (category && transaction.category !== category) return false;
 
-      // Date range filter
       const transactionDate = new Date(transaction.date);
       if (dateRange) {
         const now = new Date();
@@ -36,7 +37,6 @@ export default function TransactionList({ transactions }) {
         if (startDate && transactionDate < startDate) return false;
       }
 
-      // Amount filter
       const amount = transaction.amount;
       if (minAmount && amount < Number(minAmount)) return false;
       if (maxAmount && amount > Number(maxAmount)) return false;
@@ -47,7 +47,6 @@ export default function TransactionList({ transactions }) {
     setFilteredTransactions(filtered);
   };
 
-  // Handle reset
   const handleReset = () => {
     setFilteredTransactions(transactions);
   };
@@ -55,7 +54,17 @@ export default function TransactionList({ transactions }) {
   return (
     <div>
       <h3>Transactions</h3>
-      <Filter onFilter={handleFilter} onReset={handleReset} />
+      <i
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="fa fa-filter"
+        style={{ fontSize: "48px" }}
+      ></i>
+      <Filter
+        isOpen={isOpen}
+        onFilter={handleFilter}
+        onReset={handleReset}
+        transactions={transactions}
+      />
       {filteredTransactions && (
         <ul className="transaction-list">
           {filteredTransactions.map((transaction) => (
