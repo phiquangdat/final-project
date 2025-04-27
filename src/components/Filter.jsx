@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { BudgetContext } from "../context/BudgetContext";
 
@@ -21,10 +21,9 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
   const types = [...new Set(transactions.map((t) => t.type))];
   const categories = [...new Set(transactions.map((t) => t.category))];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  useEffect(() => {
     onFilter({ type, category, dateRange, minAmount, maxAmount });
-  };
+  }, [type, category, dateRange, minAmount, maxAmount, onFilter]);
 
   const handleReset = () => {
     setType("");
@@ -37,7 +36,7 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
   if (!isOpen) return null;
   return createPortal(
     <dialog open>
-      <form onSubmit={handleSubmit} data-testid="filter-form">
+      <form data-testid="filter-form">
         <button style={styles.closeButton} onClick={() => setIsOpen(false)}>
           &times;
         </button>
@@ -104,7 +103,6 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
             step="500"
           />
         </div>
-        <button type="submit">Apply Filters</button>
         <button type="button" onClick={handleReset}>
           Reset Filters
         </button>

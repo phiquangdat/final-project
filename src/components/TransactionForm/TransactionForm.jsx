@@ -19,8 +19,8 @@ export default function TransactionForm({ setOptimisticTransactions }) {
       errors.push("Please enter description");
     }
 
-    if (!amount) {
-      errors.push("Amount is not valid");
+    if (!amount || isNaN(amount) || amount <= 0) {
+      errors.push("Amount must be a valid positive number");
     }
 
     if (!category || category.trim() === "") {
@@ -40,22 +40,26 @@ export default function TransactionForm({ setOptimisticTransactions }) {
     }
 
     const transaction = {
-      id: Math.random(),
+      id: Math.random().toString(),
       description,
       amount: Number(amount),
       category,
       isOptimistic: true,
     };
 
+    // Add optimistic transaction
     setOptimisticTransactions((prev) =>
       prev.filter((t) => t.id !== transaction.id)
     );
 
+    // Simulate server delay
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
+    // Add final transaction and remove optimistic one
     addTransaction({ ...transaction, isOptimistic: false });
-    setCategory("");
+    
 
+    setCategory("");
     return { errors: null };
   }
 

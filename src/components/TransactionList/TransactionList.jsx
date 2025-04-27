@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import { CSVLink } from "react-csv";
 import Filter from "../Filter";
 import Transaction from "../Transaction/Transaction";
-import { CSVLink } from "react-csv";
 import "./TransactionList.css";
 
 export default function TransactionList({ transactions }) {
@@ -14,19 +14,19 @@ export default function TransactionList({ transactions }) {
   }, [transactions]);
 
   const handleFilter = ({
-    type,
     category,
-    dateRange,
     minAmount,
     maxAmount,
+    type,
+    dateRange,
   }) => {
     const filtered = transactions.filter((transaction) => {
-      if (type && transaction.type !== type) return false;
+      if (type && transaction.type && transaction.type !== type) return false;
 
       if (category && transaction.category !== category) return false;
 
-      const transactionDate = new Date(transaction.date);
-      if (dateRange) {
+      if (dateRange && transaction.date) {
+        const transactionDate = new Date(transaction.date);
         const now = new Date();
         let startDate;
         if (dateRange === "lastWeek") {
@@ -49,20 +49,44 @@ export default function TransactionList({ transactions }) {
     setFilteredTransactions(filtered);
   };
 
+  // Handle reset
   const handleReset = () => {
     setFilteredTransactions(transactions);
+    setIsOpen(false);
   };
-  const headers = transactions.map((transaction) => transaction.type);
+
+  const csvHeaders = [
+    { label: "ID", key: "id" },
+    { label: "Description", key: "description" },
+    { label: "Amount", key: "amount" },
+    { label: "Category", key: "category" },
+    { label: "Type", key: "type" },
+    { label: "Date", key: "date" },
+  ];
+
+  // Generate ISO date for filename
+  const today = new Date().toISOString().split("T")[0]; // e.g., 2025-04-27
 
   return (
     <div>
       <div className="header">
         <h3>Transactions</h3>
-        <i
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="fa fa-filter"
-          style={{ fontSize: "48px" }}
-        ></i>
+        <div className="header-actions">
+          <i
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="fa fa-filter"
+            data-testid="filter-toggle"
+          ></i>
+          <CSVLink
+            data={filteredTransactions}
+            headers={csvHeaders}
+            filename={`transactions_${today}.csv`}
+            className="export-button"
+            data-testid="export-csv"
+          >
+            <i className="fa fa-download"></i> Export CSV
+          </CSVLink>
+        </div>
       </div>
       <Filter
         isOpen={isOpen}
@@ -71,21 +95,15 @@ export default function TransactionList({ transactions }) {
         onReset={handleReset}
         transactions={transactions}
       />
-      {filteredTransactions && (
-        <ul className="transaction-list">
-          {filteredTransactions.map((transaction) => (
+      <ul className="transaction-list">
+        {filteredTransactions.length > 0 ? (
+          filteredTransactions.map((transaction) => (
             <Transaction key={transaction.id} transaction={transaction} />
-          ))}
-        </ul>
-      )}
-      <div className="csv-download">
-        <CSVLink
-          data={transactions}
-          filename={`transaction_${new Date(Date.now()).toLocaleDateString()}`}
-        >
-          Download CSV
-        </CSVLink>
-      </div>
+          ))
+        ) : (
+          <li>No transactions found</li>
+        )}
+      </ul>
     </div>
   );
 }
