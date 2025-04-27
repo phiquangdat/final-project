@@ -1,27 +1,23 @@
-import { useState, useContext, useOptimistic } from "react";
+import { useState, useContext } from "react";
 import "./budgettracker.css";
-
-import TransactionForm from "./components/TransactionForm/TransactionForm";
 import TransactionList from "./components/TransactionList/TransactionList";
+import TransactionForm from "./components/TransactionForm/TransactionForm";
 import { BudgetContext } from "./context/BudgetContext";
 import SettingsDialog from "./components/SettingsDialog/SettingsDialog";
 import Charts from "./components/Charts";
 import styled from "styled-components";
-function App() {
+const DarkThemeWrapper = styled.div`
+  background-color: #000;
+  color: #fff;
+
+  li {
+    color: #000;
+  }
+`;
+export function App() {
   const { saldo, transactions, state } = useContext(BudgetContext);
   const [showSettings, setShowSettings] = useState(false);
-  const [optimisticTransactions, setOptimisticTransactions] = useOptimistic(
-    transactions,
-    (prev, newItem) => [...prev, newItem]
-  );
-  const DarkThemeWrapper = styled.div`
-    background-color: #000;
-    color: #fff;
 
-    li {
-      color: #000;
-    }
-  `;
   const Wrapper = state.theme === "dark" ? DarkThemeWrapper : "div";
 
   return (
@@ -51,10 +47,8 @@ function App() {
             {saldo} {state.currency}
           </p>
         </div>
-        <TransactionForm
-          setOptimisticTransactions={setOptimisticTransactions}
-        />
-        <TransactionList transactions={optimisticTransactions} />
+        <TransactionForm />
+        <TransactionList transactions={transactions} />
       </Wrapper>
       <Wrapper className="container">
         <h2>Pie Chart - Expenses across different categories</h2>

@@ -3,8 +3,24 @@ import { BudgetContext } from "../../context/BudgetContext";
 import Confirm from "../Confirm/Confirm";
 
 export default function Transaction({ transaction }) {
-  const { updateTransaction, deleteTransaction } = useContext(BudgetContext);
+  const { state, updateTransaction, deleteTransaction } =
+    useContext(BudgetContext);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTransaction, setEditedTransaction] = useState({
+    description: transaction.description,
+    amount: transaction.amount,
+  });
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    updateTransaction({
+      ...transaction,
+      description: editedTransaction.description,
+      amount: Number(editedTransaction.amount),
+    });
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -14,9 +30,43 @@ export default function Transaction({ transaction }) {
           transaction.isOptimistic ? "optimistic" : "",
         ].join(" ")}
       >
-        {transaction.description}{" "}
-        <button onClick={() => updateTransaction(transaction)}>Edit</button>{" "}
-        <button onClick={() => setShowConfirm(true)}>X</button>{" "}
+        {isEditing ? (
+          <form onSubmit={handleEditSubmit}>
+            <input
+              type="text"
+              value={editedTransaction.description}
+              onChange={(e) =>
+                setEditedTransaction({
+                  ...editedTransaction,
+                  description: e.target.value,
+                })
+              }
+              required
+            />
+            <input
+              type="number"
+              value={editedTransaction.amount}
+              onChange={(e) =>
+                setEditedTransaction({
+                  ...editedTransaction,
+                  amount: e.target.value,
+                })
+              }
+              required
+            />
+            <button type="submit">Save</button>
+            <button type="button" onClick={() => setIsEditing(false)}>
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <>
+            {transaction.description} {Math.abs(transaction.amount)}{" "}
+            {state.currency}
+            <button onClick={() => setIsEditing(true)}>Edit</button>
+            <button onClick={() => setShowConfirm(true)}>X</button>
+          </>
+        )}
       </li>
 
       {showConfirm && (

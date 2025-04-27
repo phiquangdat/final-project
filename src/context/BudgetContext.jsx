@@ -33,7 +33,7 @@ function BudgetReducer(state, action) {
       transaction.type = "expense";
     }
     action.payload = transaction;
-    add_Transaction(action.payload);
+
     return {
       ...state,
       transactions: [...state.transactions, action.payload],

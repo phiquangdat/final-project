@@ -1,29 +1,52 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { createPortal } from "react-dom";
-import { BudgetContext } from "../context/BudgetContext";
+import { BudgetContext } from "../../context/BudgetContext";
+import "./Filter.css";
 
 export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
   const { transactions } = useContext(BudgetContext);
-  const styles = {
-    closeButton: {
-      position: "absolute",
-      top: "10px",
-      right: "10px",
-      fontSize: "18px",
-      cursor: "pointer",
-    },
-  };
   const [type, setType] = useState("");
   const [category, setCategory] = useState("");
   const [dateRange, setDateRange] = useState("");
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
-  const types = [...new Set(transactions.map((t) => t.type))];
-  const categories = [...new Set(transactions.map((t) => t.category))];
 
-  useEffect(() => {
-    onFilter({ type, category, dateRange, minAmount, maxAmount });
-  }, [type, category, dateRange, minAmount, maxAmount, onFilter]);
+  const types = Array.isArray(transactions)
+    ? [...new Set(transactions.map((t) => t.type).filter(Boolean))]
+    : [];
+  const categories = Array.isArray(transactions)
+    ? [...new Set(transactions.map((t) => t.category).filter(Boolean))]
+    : [];
+
+  const handleTypeChange = (value) => {
+    setType(value);
+    onFilter({ type: value, category, dateRange, minAmount, maxAmount });
+  };
+
+  const handleCategoryChange = (value) => {
+    setCategory(value);
+    onFilter({ type, category: value, dateRange, minAmount, maxAmount });
+  };
+
+  const handleDateRangeChange = (value) => {
+    setDateRange(value);
+    onFilter({ type, category, dateRange: value, minAmount, maxAmount });
+  };
+
+  const handleMinAmountChange = (value) => {
+    setMinAmount(value);
+    onFilter({ type, category, dateRange, minAmount: value, maxAmount });
+  };
+
+  const handleMaxAmountChange = (value) => {
+    setMaxAmount(value);
+    onFilter({ type, category, dateRange, minAmount, maxAmount: value });
+  };
+
+  // Prevent default form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  };
 
   const handleReset = () => {
     setType("");
@@ -33,19 +56,25 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
     setMaxAmount("");
     onReset();
   };
+
   if (!isOpen) return null;
+
   return createPortal(
-    <dialog open>
-      <form data-testid="filter-form">
-        <button style={styles.closeButton} onClick={() => setIsOpen(false)}>
-          &times;
+    <dialog open data-testid="filter-form">
+      <form onSubmit={handleSubmit}>
+        <button
+          className="close-button"
+          onClick={() => setIsOpen(false)}
+          aria-label="Close filter dialog"
+        >
+          ×
         </button>
         <div>
           <label htmlFor="type">Type</label>
           <select
             id="type"
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => handleTypeChange(e.target.value)}
           >
             <option value="">All</option>
             {types.map((type) => (
@@ -60,7 +89,7 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
           <select
             id="category"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => handleCategoryChange(e.target.value)}
           >
             <option value="">All</option>
             {categories.map((cat) => (
@@ -75,7 +104,7 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
           <select
             id="dateRange"
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
+            onChange={(e) => handleDateRangeChange(e.target.value)}
           >
             <option value="">All Time</option>
             <option value="lastWeek">Last Week</option>
@@ -89,8 +118,7 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
             id="minAmount"
             type="number"
             value={minAmount}
-            onChange={(e) => setMinAmount(e.target.value)}
-            step="500"
+            onChange={(e) => handleMinAmountChange(e.target.value)}
           />
         </div>
         <div>
@@ -99,8 +127,7 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
             id="maxAmount"
             type="number"
             value={maxAmount}
-            onChange={(e) => setMaxAmount(e.target.value)}
-            step="500"
+            onChange={(e) => handleMaxAmountChange(e.target.value)}
           />
         </div>
         <button type="button" onClick={handleReset}>
@@ -108,6 +135,6 @@ export default function Filter({ isOpen, onFilter, onReset, setIsOpen }) {
         </button>
       </form>
     </dialog>,
-    document.getElementById("filter")
+    document.getElementById("filter") || document.body
   );
 }

@@ -3,13 +3,12 @@ import { BudgetContext } from "../../context/BudgetContext";
 import SubmitButton from "../SubmitButton";
 import Confirm from "../Confirm/Confirm";
 
-export default function TransactionForm({ setOptimisticTransactions }) {
+export default function TransactionForm() {
   const { addTransaction } = useContext(BudgetContext);
   const [category, setCategory] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleCreateTransaction(prevFormState, formData) {
-    console.log("handleCreateTransaction called", Object.fromEntries(formData));
     const description = formData.get("description");
     const amount = Number(formData.get("amount"));
     const category = formData.get("category");
@@ -40,25 +39,12 @@ export default function TransactionForm({ setOptimisticTransactions }) {
     }
 
     const transaction = {
-      id: Math.random().toString(),
       description,
       amount: Number(amount),
       category,
-      isOptimistic: true,
     };
-
-    // Add optimistic transaction
-    setOptimisticTransactions((prev) =>
-      prev.filter((t) => t.id !== transaction.id)
-    );
-
-    // Simulate server delay
     await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    // Add final transaction and remove optimistic one
-    addTransaction({ ...transaction, isOptimistic: false });
-    
-
+    await addTransaction({ ...transaction });
     setCategory("");
     return { errors: null };
   }
