@@ -1,10 +1,12 @@
 import { useContext, useActionState, useState } from "react";
 import { BudgetContext } from "../../context/BudgetContext";
 import SubmitButton from "../SubmitButton";
+import Confirm from "../Confirm/Confirm";
 
 export default function TransactionForm({ setOptimisticTransactions }) {
   const { addTransaction } = useContext(BudgetContext);
   const [category, setCategory] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleCreateTransaction(prevFormState, formData) {
     console.log("handleCreateTransaction called", Object.fromEntries(formData));
@@ -24,7 +26,9 @@ export default function TransactionForm({ setOptimisticTransactions }) {
     if (!category || category.trim() === "") {
       errors.push("Please select a category");
     }
+
     if (errors.length > 0) {
+      setShowConfirm(true);
       return {
         errors,
         enteredValues: {
@@ -34,6 +38,7 @@ export default function TransactionForm({ setOptimisticTransactions }) {
         },
       };
     }
+
     const transaction = {
       id: Math.random(),
       description,
@@ -41,10 +46,16 @@ export default function TransactionForm({ setOptimisticTransactions }) {
       category,
       isOptimistic: true,
     };
-    setOptimisticTransactions((prev) => [...prev, transaction]);
+
+    setOptimisticTransactions((prev) =>
+      prev.filter((t) => t.id !== transaction.id)
+    );
+
     await new Promise((resolve) => setTimeout(resolve, 3000));
+
     addTransaction({ ...transaction, isOptimistic: false });
     setCategory("");
+
     return { errors: null };
   }
 
@@ -95,6 +106,15 @@ export default function TransactionForm({ setOptimisticTransactions }) {
             <li key={error}>{error}</li>
           ))}
         </ul>
+      )}
+
+      {showConfirm && (
+        <Confirm
+          message="Validation Errors Detected"
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={() => setShowConfirm(false)}
+          errors={formState.errors}
+        />
       )}
 
       <SubmitButton pending_text="Loading" actual_text="Add Transaction" />

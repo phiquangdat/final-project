@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Filter from "../Filter";
-import Transaction from "../Transaction";
+import Transaction from "../Transaction/Transaction";
 import { CSVLink } from "react-csv";
 import "./TransactionList.css";
 
@@ -64,14 +64,6 @@ export default function TransactionList({ transactions }) {
           style={{ fontSize: "48px" }}
         ></i>
       </div>
-      <div className="csv-download">
-        <CSVLink
-          data={transactions}
-          filename={`transaction_${new Date(Date.now()).toLocaleDateString()}`}
-        >
-          Download CSV
-        </CSVLink>
-      </div>
       <Filter
         isOpen={isOpen}
         setIsOpen={setIsOpen}
@@ -86,6 +78,14 @@ export default function TransactionList({ transactions }) {
           ))}
         </ul>
       )}
+      <div className="csv-download">
+        <CSVLink
+          data={transactions}
+          filename={`transaction_${new Date(Date.now()).toLocaleDateString()}`}
+        >
+          Download CSV
+        </CSVLink>
+      </div>
     </div>
   );
 }
