@@ -6,6 +6,7 @@ import { BudgetContext } from "./context/BudgetContext";
 import SettingsDialog from "./components/SettingsDialog/SettingsDialog";
 import Charts from "./components/Charts";
 import styled from "styled-components";
+
 const DarkThemeWrapper = styled.div`
   background-color: #000;
   color: #fff;
@@ -14,6 +15,7 @@ const DarkThemeWrapper = styled.div`
     color: #000;
   }
 `;
+
 export function App() {
   const { saldo, transactions, state } = useContext(BudgetContext);
   const [showSettings, setShowSettings] = useState(false);
@@ -38,6 +40,7 @@ export function App() {
           <i
             className="fa fa-cog"
             aria-hidden="true"
+            data-testid="settings-icon" // Added for testing
             onClick={() => setShowSettings(true)}
           ></i>
         </div>

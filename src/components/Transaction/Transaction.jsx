@@ -1,10 +1,9 @@
-import { useContext, useState } from "react";
-import { BudgetContext } from "../../context/BudgetContext";
-import Confirm from "../Confirm/Confirm";
+import { useContext, useState } from 'react';
+import { BudgetContext } from '../../context/BudgetContext';
+import Confirm from '../Confirm/Confirm';
 
 export default function Transaction({ transaction }) {
-  const { state, updateTransaction, deleteTransaction } =
-    useContext(BudgetContext);
+  const { state, updateTransaction, deleteTransaction } = useContext(BudgetContext);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTransaction, setEditedTransaction] = useState({
@@ -26,14 +25,17 @@ export default function Transaction({ transaction }) {
     <>
       <li
         className={[
-          transaction.amount > 0 ? "income" : "expense",
-          transaction.isOptimistic ? "optimistic" : "",
-        ].join(" ")}
+          transaction.amount > 0 ? 'income' : 'expense',
+          transaction.isOptimistic ? 'optimistic' : '',
+        ].join(' ')}
       >
         {isEditing ? (
           <form onSubmit={handleEditSubmit}>
+            <label htmlFor="edit-description">Description</label>
             <input
               type="text"
+              id="edit-description"
+              data-testid="description-input"
               value={editedTransaction.description}
               onChange={(e) =>
                 setEditedTransaction({
@@ -43,8 +45,11 @@ export default function Transaction({ transaction }) {
               }
               required
             />
+            <label htmlFor="edit-amount">Amount</label>
             <input
               type="number"
+              id="edit-amount"
+              data-testid="amount-input"
               value={editedTransaction.amount}
               onChange={(e) =>
                 setEditedTransaction({
@@ -61,8 +66,10 @@ export default function Transaction({ transaction }) {
           </form>
         ) : (
           <>
-            {transaction.description} {Math.abs(transaction.amount)}{" "}
-            {state.currency}
+            <span>{transaction.description}</span>{' '}
+            <span>
+              {Math.abs(transaction.amount)} {state.currency}
+            </span>
             <button onClick={() => setIsEditing(true)}>Edit</button>
             <button onClick={() => setShowConfirm(true)}>X</button>
           </>

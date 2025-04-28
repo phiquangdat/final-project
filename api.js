@@ -14,12 +14,10 @@ const get_Transaction = async () => {
 };
 
 const add_Transaction = async (transaction) => {
-  const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   const type = transaction.amount > 0 ? "income" : "expense";
   const payload = {
     ...transaction,
     type,
-    date: currentDate,
   };
 
   const response = await fetch(url, {

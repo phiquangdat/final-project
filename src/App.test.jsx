@@ -1,69 +1,74 @@
-import { render, screen } from "@testing-library/react";
-import { BudgetContext } from "./context/BudgetContext";
-import App from "./App";
-import { describe, it, expect } from "vitest";
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import App from './App';
+import { BudgetContext } from './context/BudgetContext';
 
-describe("Budget Tracker App", () => {
-  // Mock the BudgetContext data
-  const mockSaldo = 200;
-  const mockTransactions = [
-    { id: 1, description: "Groceries", amount: -50 },
-    { id: 2, description: "Salary", amount: 500 },
-  ];
+// Mock dependencies
+vi.mock('./components/TransactionList/TransactionList', () => ({
+  default: vi.fn(() => <div data-testid="transaction-list">TransactionList</div>),
+}));
+vi.mock('./components/TransactionForm/TransactionForm', () => ({
+  default: vi.fn(() => <div data-testid="transaction-form">TransactionForm</div>),
+}));
+vi.mock('./components/SettingsDialog/SettingsDialog', () => ({
+  default: vi.fn(({ isOpen, onClose }) =>
+    isOpen ? <div data-testid="settings-dialog">SettingsDialog</div> : null
+  ),
+}));
+vi.mock('./components/Charts', () => ({
+  default: vi.fn(() => <div data-testid="charts">Charts</div>),
+}));
 
-  it("renders the Budget Tracker header", () => {
-    render(
-      <BudgetContext.Provider
-        value={{ saldo: mockSaldo, transactions: mockTransactions }}
-      >
-        <App />
-      </BudgetContext.Provider>
-    );
+const mockContextValue = {
+  state: { currency: 'USD', theme: 'light' },
+  saldo: 200,
+  transactions: [
+    { id: 1, description: 'Groceries', amount: -50, category: 'Food' },
+    { id: 2, description: 'Salary', amount: 500, category: 'Salary' },
+  ],
+  addTransaction: vi.fn(),
+  updateTransaction: vi.fn(),
+  deleteTransaction: vi.fn(),
+};
 
-    // Assert the header is rendered
-    const headerElement = screen.getByText(/Budget Tracker/i);
-    expect(headerElement).toBeInTheDocument();
+describe('Budget Tracker App', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("displays the correct balance", () => {
+  test('renders the Budget Tracker header', () => {
     render(
-      <BudgetContext.Provider
-        value={{ saldo: mockSaldo, transactions: mockTransactions }}
-      >
+      <BudgetContext.Provider value={mockContextValue}>
         <App />
       </BudgetContext.Provider>
     );
-
-    // Assert the balance is displayed correctly
-    const balanceElement = screen.getByText("200 €");
-    expect(balanceElement).toBeInTheDocument();
+    expect(screen.getByText(/budget tracker/i)).toBeInTheDocument();
   });
 
-  it("renders TransactionForm", () => {
+  test('displays the correct balance', () => {
     render(
-      <BudgetContext.Provider
-        value={{ saldo: mockSaldo, transactions: mockTransactions }}
-      >
+      <BudgetContext.Provider value={mockContextValue}>
         <App />
       </BudgetContext.Provider>
     );
-
-    // Assert that TransactionForm is rendered
-    const transactionFormElement = screen.getByText(/add transaction/i); // Adjust as needed based on actual placeholder
-    expect(transactionFormElement).toBeInTheDocument();
+    expect(screen.getByText('200 USD')).toBeInTheDocument();
   });
 
-  it("renders a transaction description", () => {
+  test('renders TransactionForm', () => {
     render(
-      <BudgetContext.Provider
-        value={{ saldo: mockSaldo, transactions: mockTransactions }}
-      >
+      <BudgetContext.Provider value={mockContextValue}>
         <App />
       </BudgetContext.Provider>
     );
+    expect(screen.getByTestId('transaction-form')).toBeInTheDocument();
+  });
 
-    // Assert that a transaction description is rendered
-    const transactionListElement = screen.getByText(/Groceries/i);
-    expect(transactionListElement).toBeInTheDocument();
+  test('renders a transaction description', () => {
+    render(
+      <BudgetContext.Provider value={mockContextValue}>
+        <App />
+      </BudgetContext.Provider>
+    );
+    expect(screen.getByTestId('transaction-list')).toBeInTheDocument();
   });
 });

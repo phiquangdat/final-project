@@ -1,49 +1,81 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { vi } from "vitest";
-import { BudgetContext } from "../../context/BudgetContext";
-import Transaction from "./Transaction";
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
+import Transaction from './Transaction';
+import { BudgetContext } from '../../context/BudgetContext';
 
-beforeEach(() => {
-  const confirmContainer = document.createElement("div");
-  confirmContainer.setAttribute("id", "confirm");
-  document.body.appendChild(confirmContainer);
-});
+// Mock the Confirm component
+vi.mock('../Confirm/Confirm', () => ({
+  default: vi.fn(({ message, onCancel, onConfirm }) => (
+    <div data-testid="confirm-dialog">
+      <p>{message}</p>
+      <button onClick={onConfirm}>Confirm</button>
+      <button onClick={onCancel}>Cancel</button>
+    </div>
+  )),
+}));
 
-afterEach(() => {
-  document.getElementById("confirm")?.remove();
-});
+const mockContextValue = {
+  state: { currency: 'USD', theme: 'light' },
+  updateTransaction: vi.fn(),
+  deleteTransaction: vi.fn(),
+};
 
-test("deletes a transaction when confirmed", () => {
-  const mockDeleteTransaction = vi.fn();
-  const mockUpdateTransaction = vi.fn();
+const renderWithContext = (component) => {
+  return render(
+    <BudgetContext.Provider value={mockContextValue}>
+      {component}
+    </BudgetContext.Provider>
+  );
+};
 
+describe('Transaction Component', () => {
   const transaction = {
-    id: "1",
-    description: "Coffee",
-    amount: -5,
+    id: 1,
+    description: 'Groceries',
+    amount: -50,
+    category: 'Food',
     isOptimistic: false,
   };
 
-  render(
-    <BudgetContext.Provider
-      value={{
-        deleteTransaction: mockDeleteTransaction,
-        updateTransaction: mockUpdateTransaction,
-      }}
-    >
-      <Transaction transaction={transaction} />
-    </BudgetContext.Provider>
-  );
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-  // Click delete button to trigger confirmation modal
-  fireEvent.click(screen.getByText("X"));
+  test('deletes a transaction when confirmed', () => {
+    renderWithContext(<Transaction transaction={transaction} />);
+    fireEvent.click(screen.getByText('X')); // Click delete button
+    fireEvent.click(screen.getByText('Confirm')); // Click confirm button
+    expect(mockContextValue.deleteTransaction).toHaveBeenCalledWith(transaction.id);
+  });
 
-  // Ensure confirmation modal appears
-  expect(screen.getByText("Are you sure?")).toBeInTheDocument();
+  test('renders transaction details correctly', () => {
+    renderWithContext(<Transaction transaction={transaction} />);
+    const transactionElement = screen.getByRole('listitem');
+    expect(transactionElement).toHaveTextContent('Groceries');
+    expect(transactionElement).toHaveTextContent('50 USD');
+  });
 
-  // Click confirm delete
-  fireEvent.click(screen.getByText("Yes"));
+  test('enters edit mode when edit button is clicked', () => {
+    renderWithContext(<Transaction transaction={transaction} />);
+    fireEvent.click(screen.getByText('Edit'));
+    expect(screen.getByTestId('description-input')).toHaveValue('Groceries');
+    expect(screen.getByTestId('amount-input')).toHaveValue(-50);
+  });
 
-  // Expect deleteTransaction to be called
-  expect(mockDeleteTransaction).toHaveBeenCalledWith("1");
+  test('updates transaction when edit form is submitted', () => {
+    renderWithContext(<Transaction transaction={transaction} />);
+    fireEvent.click(screen.getByText('Edit'));
+    fireEvent.change(screen.getByTestId('description-input'), {
+      target: { value: 'Updated Groceries' },
+    });
+    fireEvent.change(screen.getByTestId('amount-input'), {
+      target: { value: '-60' },
+    });
+    fireEvent.click(screen.getByText('Save'));
+    expect(mockContextValue.updateTransaction).toHaveBeenCalledWith({
+      ...transaction,
+      description: 'Updated Groceries',
+      amount: -60,
+    });
+  });
 });
